@@ -28,7 +28,7 @@ function VideoChatClient(){
 					sdpConstraints : {"offerToReceiveAudio":true,"offerToReceiveVideo":true }
 				  };
 	this.rtcConnection = null;
-	this.socketConnection = io.connect("http://"+window.location.host);
+	this.socketConnection = io.connect(window.location.protocol+"//"+window.location.host);
 	this.socketConnection.on("receive", function(message){
 		self.receive(message);
 	});
