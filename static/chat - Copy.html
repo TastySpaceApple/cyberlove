@@ -1,0 +1,36 @@
+<html>
+<head>
+	<script src="videochat.js" type="text/javascript"></script>
+	<script src="/socket.io/socket.io.js"></script>  
+</head>
+<body>
+	<video id="local_video" muted="true"></video>
+	<video id="received_video"></video>
+	<p><input type="text" name="txtName" id="txtName" /> <input type="button" id="btnLogin" value="Login" /></p>
+	<p><input type="text" name="txtRemote" id="txtRemote" /> <input type="button" id="btnRemote" value="Connect" /></p>
+	<script type="text/javascript">
+		var client;
+		function login(name){
+			client = new VideoChatClient(name);
+			client.on('deviceReady', function(e){
+				document.getElementById('local_video').src = window.URL.createObjectURL(e.stream);
+				document.getElementById('local_video').play();
+			});
+			client.on('remoteVideo', function(e){
+				console.log(e.stream);
+				document.getElementById("received_video").src = window.URL.createObjectURL(e.stream);
+				document.getElementById("received_video").play();
+			});
+			client.openDevice();
+		}
+		
+		document.getElementById('btnLogin').addEventListener('click', function(){
+			login(document.getElementById('txtName').value);
+		});
+		
+		document.getElementById('btnRemote').addEventListener('click', function(){
+			client.startChat(document.getElementById('txtRemote').value);
+		});
+	</script>
+</body>
+</html>
