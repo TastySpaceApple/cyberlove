@@ -25,8 +25,7 @@ function VideoChatClient(){
 	var self = this;
 	this.vent = new EventDispatcher();
 	this.config = { rtc : { "iceServers": [{ "urls": ["stun:stun.l.google.com:19302"] }] }, 
-					sdpConstraints : { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } }
-					//{"offerToReceiveAudio":true,"offerToReceiveVideo":true }
+					sdpConstraints : {"offerToReceiveAudio":true,"offerToReceiveVideo":true }
 				  };
 	this.rtcConnection = null;
 	this.socketConnection = io.connect(window.location.protocol+"//"+window.location.host);
@@ -59,12 +58,7 @@ VideoChatClient.prototype.startChat = function(){
 		var offer = self.rtcConnection.createOffer(function (sdp) { // start negotiation with the remote peer
 			self.rtcConnection.setLocalDescription(sdp);
 			self.send({"offer": sdp});
-		}, function(err){console.log(err); }, self.config.sdpConstraints);
-		self.rtcConnection.onicecandidate = function (e) {
-			if (!self.rtcConnection || !e || !e.candidate) return;
-			var candidate = e.candidate;
-			self.send({"iceCandidate": candidate});
-		}
+		}, function(err){console.log(err); }, {"offerToReceiveAudio":true,"offerToReceiveVideo":true });
 	})
 	
 }
@@ -77,6 +71,11 @@ VideoChatClient.prototype.startRtcConnection = function(){
 	this.rtcConnection.onaddstream = function(e){
 		self.vent.trigger('remoteVideo', {stream:e.stream});
 		console.log('stream recved');
+	}
+	this.rtcConnection.onicecandidate = function (e) {
+		if (!self.rtcConnection || !e || !e.candidate) return;
+			var candidate = e.candidate;
+			self.send({"iceCandidate": candidate});
 	}
 }
 VideoChatClient.prototype.closeRtcConnection = function(){
@@ -104,7 +103,7 @@ VideoChatClient.prototype.receive = function(message){
 		this.rtcConnection.createAnswer(function (sdp) { // send an answer
 			self.rtcConnection.setLocalDescription(sdp);
 			self.send({answer: sdp});
-		}, function(err){console.log(err); }, this.config.sdpConstraints);
+		}, function(err){console.log(err); }, { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } });
 	}
 }
 
