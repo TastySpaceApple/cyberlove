@@ -85,6 +85,7 @@ footer{
 				console.log(e.stream);
 				document.getElementById("received_video").src = window.URL.createObjectURL(e.stream);
 				document.getElementById("received_video").play();
+				document.getElementById('floating_start').remove();
 			});
 			client.openDevice();
 			document.getElementById('btnStart').addEventListener('click', function(){

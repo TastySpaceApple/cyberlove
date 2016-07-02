@@ -25,7 +25,8 @@ function VideoChatClient(){
 	var self = this;
 	this.vent = new EventDispatcher();
 	this.config = { rtc : { "iceServers": [{ "urls": ["stun:stun.l.google.com:19302"] }] }, 
-					sdpConstraints : {"offerToReceiveAudio":true,"offerToReceiveVideo":true }
+					sdpConstraints : { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } }
+					//{"offerToReceiveAudio":true,"offerToReceiveVideo":true }
 				  };
 	this.rtcConnection = null;
 	this.socketConnection = io.connect(window.location.protocol+"//"+window.location.host);
@@ -43,7 +44,7 @@ VideoChatClient.prototype.openDevice = function(){
 	
 	navigator.getUserMedia ({audio: true, video:true}, function(localStream) {
 		self.videoStream = localStream;
-		self.mute();
+		//self.mute();
 		self.vent.trigger("deviceReady", {stream: localStream});
 	}, function(err){ console.log(err); });
 }
@@ -75,7 +76,7 @@ VideoChatClient.prototype.startRtcConnection = function(){
 	this.rtcConnection.addStream(this.videoStream);
 	this.rtcConnection.onaddstream = function(e){
 		self.vent.trigger('remoteVideo', {stream:e.stream});
-		console.log('another stream recved');
+		console.log('stream recved');
 	}
 }
 VideoChatClient.prototype.closeRtcConnection = function(){
@@ -98,6 +99,7 @@ VideoChatClient.prototype.receive = function(message){
 		this.rtcConnection.setRemoteDescription(new RTCSessionDescription(message.answer));	
 	if('offer' in message){		
 		this.startRtcConnection();
+		console.log(this.config.sdpConstraints);
 		this.rtcConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
 		this.rtcConnection.createAnswer(function (sdp) { // send an answer
 			self.rtcConnection.setLocalDescription(sdp);
