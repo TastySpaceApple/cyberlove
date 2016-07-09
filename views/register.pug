@@ -1,0 +1,35 @@
+extends layout
+
+mixin rangeselect(name, start, end)
+  select(name=name, id=name)
+    - for (;start <= end; start++) {
+    option(value=start) #{start}
+    - }
+	
+mixin listselect(name, values)
+  select(name=name, id=name)
+    each val in values
+      option(value=val) #{val}
+	
+block content
+  article.main-content
+    form.signup-form(method='post', action='/register')
+      h1.title Create an account   
+      p
+        label(for='username') Nickname:
+        input(type='text', name='username', id='username')
+      p
+        label(for='password') Password:
+        input(type='password', name='password', id='password', placeholder='Password')
+      p
+        label(for='profilephoto') Profile Photo:
+        input(type='file', name='profilephoto', id='profilephoto')
+      p
+        label Birth Date:
+        +rangeselect('birthdate_day', 1, 31)
+        +listselect('birthdate_month', ['January', 'Febuary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+        +rangeselect('birthdate_year', 1950, 2006)
+      p
+        label(for='bio') Bio:
+        textarea(name='bio', id='bio', cols='50', rows='3')
+      button.btn.btn-default(type='submit') Submit

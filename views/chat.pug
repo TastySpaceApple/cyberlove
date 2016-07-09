@@ -1,0 +1,30 @@
+extends layout
+block scripts
+  script(src='/socket.io/socket.io.js')
+  script(src='/assets/js/videochat.js')
+block content
+  article.main-content
+    section(id='chat_window', class='chat_window')
+      div(class='partner_video_container')
+        div(id='partner-name') ---
+        div(id='floating_start')
+          span Click to Start
+          p
+            input.btn.btn-primary(type='button', value='Start', id='btnStart')
+        video(id='received_video')
+        ul(class='partner_dashboard')
+          li
+            a(class='partner-dashboard-icon love-icon', data-title='Add as Cyber Love', href='javascript:void(0);')
+          li
+            a(class='partner-dashboard-icon next-icon', data-title='Next', href='javascript:void(0);', id='btnNext')
+      div(class='local_video_container')
+        div(class='vertically-aligned-cell')
+          video(id='local_video', muted='true')
+        p
+          a(href='#', class='toggle-icon mic-icon', id='local-audio-toggle', data-toggle='false')
+          a(href='#', class='toggle-icon cam-icon', id='local-video-toggle', data-toggle='false')
+      div(class='chat_text_messages_container')
+        div(class='chat_text_messages', id='chat_text_messages')
+        form(class='chat_text_message_form' id='chat_text_message_form')
+          input(type='text', class='chat_text_message_box', id='chat_text_message_box')
+          input(type='submit' class='chat_text_message_submit' value='Send')

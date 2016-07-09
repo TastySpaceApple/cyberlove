@@ -1,0 +1,47 @@
+<html>
+<head>
+	<style>
+
+	</style>
+</head>
+<body>
+	<article class="main-content">
+		<form class="signup-form">
+			<h1>Create an account</h1>
+			<p><label for="nickname">Nickname:</label><input type="text" name="nickname" id="nickname"></p>
+			<p><label for="profilephoto">Profile Photo:</label><input type="file" name="profilephoto" id="profilephoto"></p>
+			<p><label for="birthdate">Birth Date:</label>
+				<select name="birthdate_day"   id="birthdate_day" data-start="1" data-end="31" data-type="number"></select>
+				/ <select name="birthdate_month" id="birthdate_month" data-start="1" data-end="12" data-type="month"></select>
+				/ <select name="birthdate_year"  id="birthdate_year" data-start="1950" data-end="2005" data-type="number"></select>
+			</p>
+			<p><label for="bio">Bio:</label><textarea name="bio" id="bio" cols="50" rows="3"></textarea></p>
+		</form>
+	</article>
+	<script type="text/javascript">
+			
+		function createDynamicSelectOptions(){
+			var months = 'null January Febuary March April May June July August September October November December'.split(' ');
+			var selects = document.getElementsByTagName('select');
+			for(var i = 0, len = selects.length; i < len; i++ ){
+				var select = selects[i];
+				var start = parseInt(select.getAttribute('data-start'));
+				var end = parseInt(select.getAttribute('data-end'));
+				var type = select.getAttribute('data-type');
+				if(!start || !end) continue;
+				var optionsHTML = '';
+				for(; start <= end; start++){
+					var val = start;
+					switch(type){
+						case 'month':
+							val = months[val];
+					}
+					optionsHTML += '<option value="'+val+'">'+val+'</option>';
+				}
+				select.innerHTML = optionsHTML;
+			}
+		}
+		window.addEventListener('load', createDynamicSelectOptions);
+	</script>
+</body>
+</html>

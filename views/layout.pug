@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    title GaysAround - Free Random Video Chat for Guys
+    link(rel='stylesheet', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/assets/css/stylesheet.css')
+    block scripts
+  body
+    div.header-space
+    header
+      a(href="/", class='logo') GaysAround
+      nav.main
+        ul.menubar
+          if (!user)
+            li.quicklogin
+              form(role='form', action='/login', method='post')
+                input(type='text', name="username", placeholder='Username')
+                input(type='password', name="password", placeholder='Password')
+                button.btn.btn-default(type='submit') Login
+            li
+              a.btn.btn-primary(href="/register") Register
+          if (user)
+            li.profile-link
+              a(href="/") #{user.username}
+              ul
+                li
+                  a(href="/logout") Logout
+    block content

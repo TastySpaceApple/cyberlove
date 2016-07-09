@@ -6,6 +6,7 @@
 html, body{
 	margin:0;
 	padding:0;
+	font-family: sans-serif;
 }
 .chat_window{
 	box-sizing:border-box;
@@ -14,6 +15,7 @@ html, body{
 	position:relative;
 	display:block;
 	margin:auto;
+	min-height:500px;
 }
 .chat_window .partner_video_container {
 	box-sizing:border-box;
@@ -21,23 +23,59 @@ html, body{
 	top:0px;
 	left:0px;
 	width:100%;
-	height:65%;
-	background:#e2e2e2;
+	height:50%;
+	background:black;
 	text-align:center;
 }
 .chat_window .local_video_container {
 	box-sizing:border-box;
 	position:absolute;
-	top:65%;
+	top:50%;
 	left:0px;
-	width:35%;
-	height:35%;
-	background:#222;
+	width:30%;
+	height:50%;
+	background:#eee;
 	text-align:center;
+	display: table-cell;
+    vertical-align: middle;
 }
 .chat_window video{
 	max-width:100%;
 	max-height:100%;
+}
+#chat_window .chat_text_messages_container{
+	box-sizing:border-box;
+	position:absolute;
+	top:50%;
+	left:30%;
+	width:70%;
+	height:50%;	
+	background:#eee;
+	padding:0px;
+	
+}
+#chat_window .chat_text_messages_container .chat_text_message_form {
+	position:absolute;
+	bottom:0px;
+	left:0px;
+	right:0px;
+	font-size:16px;
+	z-index:100;
+	margin:5px;
+}
+.chat_text_message_box{
+	width: calc(100% - 70px);
+	font-size: 16px;
+	border: .5em solid #fff;
+	border-left-width: 10px;
+	box-sizing: border-box;
+	outline:none;
+}
+.chat_text_message_submit{
+	width:65px;
+	font-size: 16px;
+	border: .5em solid #fff;
+	outline:none;
 }
 header, footer{
 	background: #222;
@@ -58,6 +96,140 @@ footer{
 	height:20%;
 	text-align:center;
 }
+ul.partner_dashboard{
+	list-style-type: none;
+	margin:0px;
+	padding:0px;
+	width:48px;
+	position:absolute;
+	top:50%;
+	right:0px;
+	margin-top: -96px;
+	border-radius: .8em 0 0 .8em;
+	background-color:#889;
+}
+ul.partner_dashboard li{
+	display:block;
+	width:100%;
+}
+ul.partner_dashboard li a{
+	display:inline-block;
+	width:48px;
+	height:48px;
+	background-repeat:no-repeat;
+	background-position: middle;
+	background-size:100%;
+}
+ul.partner_dashboard li a.love-icon{
+	background-image: url('assets/images/love-icon.png');
+}
+ul.partner_dashboard li a.love-icon:hover{
+	background-image: url('assets/images/love-icon-full.png');
+}
+ul.partner_dashboard li a.partner-dashboard-icon{
+	position:relative;
+}
+ul.partner_dashboard li a.partner-dashboard-icon:before{
+	content:attr(data-title);
+	position:absolute;
+	right:48px;
+	background:#222;
+	border-radius: .8em 0 0 .8em;
+	height:48px;
+	line-height:48px;
+	white-space:nowrap;
+	padding:0px .5em;
+	padding-left:1em;
+	text-decoration:none;
+	color:#fff;
+	display:none;
+	font-size:12px;
+}
+ul.partner_dashboard li a.partner-dashboard-icon:hover:before{
+	display:block;
+}
+ul.partner_dashboard li a.partner-dashboard-icon:hover{
+	background-color:#222;
+}
+.toggle-icon {
+	width:24px;
+	height:24px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: middle;
+	display:inline-block;
+	opacity:.3;
+}
+.toggle-icon[data-toggle=true]{
+	opacity:1;
+}
+.toggle-icon:hover{
+	opacity:.8;
+}
+.mic-icon{
+	background-image: url('assets/images/mic-icon.png');
+}
+.cam-icon{
+	background-image: url('assets/images/cam-icon.png');
+}
+
+.chat-message-partner, .chat-message-user{
+	font-size: 16px;
+	border-style: solid;
+	border-width: .2em 10px;
+	border-radius: .8em;
+	box-sizing: border-box;
+	margin-bottom:.5em;
+	display:inline-block;
+	position:relative;
+	clear:both;
+	max-width:90%;
+}
+.chat-message-partner {
+	background-color: #F26D30;
+	border-color: #F26D30;
+	background-repeat:no-repeat;
+	float:left;
+	margin-left:10px;
+	color:#fff;
+}
+
+.chat-message-user{
+	background-color:#ddd;
+	border-color: #ddd;
+	float:right;
+	margin-right:15px;
+}
+
+.chat-message-user:before, .chat-message-partner:before{
+	content: '';
+	position: absolute;
+	border-style: solid;
+	display: block;
+	width: 0;
+	z-index: 1;
+	top: 0em;
+}
+.chat-message-partner:before{
+	border-width: 0px 15px 15px 0px;
+	border-color: transparent #F26D30;
+	left: -15px;
+}
+
+.chat-message-user:before{
+	border-width: 0px 0 15px 15px;
+	border-color: transparent #ddd;
+	right: -15px;
+}
+
+.chat_text_messages_container .chat_text_messages{
+	position:absolute;
+	top:0px;
+	left:5px;
+	right:5px;
+	bottom: 41px;
+	overflow:auto;
+}
 </style>	
 </head>
 <body>
@@ -69,17 +241,42 @@ footer{
 				Click to start <br/>
 				<input type="button" value="Start" id="btnStart" /></div>
 			<video id="received_video"></video>
+			<ul class="partner_dashboard">
+				<li><a class="partner-dashboard-icon love-icon" data-title="Add as Cyber Love" href="#"></a></li>
+				<li><a href="#"></a></li>
+				<li><a href="#"></a></li>
+				<li><a href="#"></a></li>
+			</ul>
 		</div>
-		<div class="local_video_container"><video id="local_video" muted="true"></video></div>
+		<div class="local_video_container" style="display:table">
+			<div style="display:table-cell; vertical-align:middle;">
+				<video id="local_video" muted="true"></video>
+				<p>
+					<a href="#" class="toggle-icon mic-icon" id="local-audio-toggle" data-toggle="false"></a>
+					<a href="#" class="toggle-icon cam-icon" id="local-video-toggle" data-toggle="false"></a>
+				</p>
+			</div>
+		</div>
+		<div class="chat_text_messages_container">
+			<div class="chat_text_messages" id="chat_text_messages">
+			</div>
+			<form class="chat_text_message_form" id="chat_text_message_form">
+				<input type="text" class="chat_text_message_box" id="chat_text_message_box" />
+				<input type="submit" class="chat_text_message_submit" value="Send" />
+			</form>
+		</div>
 	</section>
 
 	<script type="text/javascript">
 		var client;
+		var chatContainer = document.getElementById('chat_text_messages');
 		function init(){
 			client = new VideoChatClient(name);
 			client.on('deviceReady', function(e){
 				document.getElementById('local_video').src = window.URL.createObjectURL(e.stream);
 				document.getElementById('local_video').play();
+				document.getElementById('local-audio-toggle').setAttribute('data-toggle', client.hasAudio());
+				document.getElementById('local-video-toggle').setAttribute('data-toggle', client.hasVideo());
 			});
 			client.on('remoteVideo', function(e){
 				console.log(e.stream);
@@ -87,14 +284,46 @@ footer{
 				document.getElementById("received_video").play();
 				document.getElementById('floating_start').remove();
 			});
+			client.on('chatMessage', function(e){
+				addMessage('chat-message-partner', e.messageText);
+			});
 			client.openDevice();
 			document.getElementById('btnStart').addEventListener('click', function(){
 				client.startChat();
 				document.getElementById('floating_start').remove();
 			});
 			document.getElementById('chat_window').style.width = window.innerHeight * .8 * 4/3;
+			
+			document.getElementById('chat_text_message_form').addEventListener('submit', function(e){
+				e.preventDefault();
+				var text = document.getElementById('chat_text_message_box').value;
+				if(/\w/g.test(text)){
+					addMessage('chat-message-user', text);
+					//client.sendChatMessage(text);
+					document.getElementById('chat_text_message_box').value = '';
+				}
+				return false;
+			});
+			
+			document.getElementById('local-audio-toggle').addEventListener('click', function(e){
+				this.setAttribute('data-toggle', client.toggleAudio());
+			});
+			document.getElementById('local-video-toggle').addEventListener('click', function(e){
+				this.setAttribute('data-toggle', client.toggleVideo());
+			});
 		}
 		
+		function addMessage(className, msg){
+			var msgDiv = document.createElement('div');
+			msgDiv.textContent = msg;
+			msgDiv.className = className;
+			chatContainer.appendChild(msgDiv);
+			chatContainer.scrollTop = chatContainer.scrollHeight;
+		}
+		for(var i=0; i<5; i++){
+		addMessage('chat-message-user', 'hi');
+		addMessage('chat-message-partner', 'hi');
+		}
 		init();
 	</script>
 <footer>

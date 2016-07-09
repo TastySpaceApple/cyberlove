@@ -1,46 +1,85 @@
+// dependencies
+var http = require('http');
 var express = require('express');
-var app = express();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
-var users = {};
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
-io.on('connection', function(socket){
-	console.log('connection');
-	var user = new User(socket);
-	var id = socket.id;
-	users[id] = user;
-	socket.on('search', function(callback){
-		var foundpartner = false;
-		for(var userid in users){
-			if(userid != id){
-				users[userid].connect(user);
-				user.connect(users[userid]);
-				foundpartner = true;
-				break;
-			}
-		}
-		callback(foundpartner)
-	});
-	socket.on('disconnect', function(){
-		delete users[id];
-	});
+var routes = require('./routes/index');
+
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(require('express-session')({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.static(path.join(__dirname, 'static')));
+
+
+app.use('/', routes);
+
+// passport config
+var Account = require('./models/account');
+passport.use(new LocalStrategy(Account.authenticate()));
+passport.serializeUser(Account.serializeUser());
+passport.deserializeUser(Account.deserializeUser());
+
+// mongoose
+mongoose.connect('mongodb://admin:missundaztood@ds027328.mlab.com:27328/gaysaroundusers');
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
-function User(socket){
-	this.socket = socket;
-	var self = this;
-	socket.on('send', function(message){
-		self.send(message);
-	})
-	this.partner = null;
+
+// error handlers
+
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
+    });
 }
-User.prototype.connect = function(user){
-	this.partner = user;
-}
-User.prototype.send = function(message){
-	this.partner.receive(message);
-}
-User.prototype.receive = function(message){
-	this.socket.emit('receive', message);
-}
-app.use(express.static('static'));
-server.listen( (process.env.PORT || 3000) );
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
+});
+
+
+var httpserver = http.createServer(app);
+var chatserver = require('./chatserver')(httpserver);
+
+httpserver.listen( (process.env.PORT || 3000) );
+
+module.exports = app;
