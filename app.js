@@ -14,6 +14,10 @@ var routes = require('./routes/index');
 
 var app = express();
 
+var sslRedirect = require('heroku-ssl-redirect');
+
+app.use(sslRedirect());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -52,13 +56,6 @@ app.use(function(req, res, next) {
     next(err);
 });
 
-// redirect all to https
-app.use(function requireHTTPS(req, res, next) {
-  if (!req.secure) {
-    return res.redirect('https://' + req.headers.host + req.url);
-  }
-  next();
-})
 
 // error handlers
 
