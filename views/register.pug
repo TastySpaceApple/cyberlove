@@ -5,31 +5,45 @@ mixin rangeselect(name, start, end)
     - for (;start <= end; start++) {
     option(value=start) #{start}
     - }
-	
-mixin listselect(name, values)
-  select(name=name, id=name)
-    each val in values
-      option(value=val) #{val}
-	
+
+mixin listselect(name, values, selected, useIndices)
+  select(name=name, id=name, value=selected)
+    each val, index in values
+      - var value = useIndices ? index : val
+      if(value == selected)
+        option(value=value, selected) #{val}
+      else
+        option(value=value) #{val}
+
+
 block content
   article.main-content
     form.signup-form(method='post', action='/register')
-      h1.title Create an account   
+      h1.title Create an account
       p
-        label(for='username') Nickname:
-        input(type='text', name='username', id='username')
+        label(for='username') Username:
+        input(type='text', name='username', id='username', placeholder='Username')
       p
         label(for='password') Password:
         input(type='password', name='password', id='password', placeholder='Password')
       p
-        label(for='profilephoto') Profile Photo:
-        input(type='file', name='profilephoto', id='profilephoto')
+        label(for='avatar') Profile Photo:
+        input(type='file', name='avatar', id='avatar')
+        br
+        i.avatar(id='avatar-preview')
+      p
+        label Gender:
+        +listselect('gender', ['Male', 'Female', 'Queer', 'Fluid', 'Agender', 'Other'])
+      p
+        label I am:
+        +listselect('sexuality', ['Straight', 'Gay', 'Bisexual', 'Open', 'Up for whatever'])
       p
         label Birth Date:
         +rangeselect('birthdate_day', 1, 31)
-        +listselect('birthdate_month', ['January', 'Febuary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+        +listselect('birthdate_month', ['January', 'Febuary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], null, true)
         +rangeselect('birthdate_year', 1950, 2006)
       p
         label(for='bio') Bio:
-        textarea(name='bio', id='bio', cols='50', rows='3')
+        textarea(name='bio', id='bio', cols='50', rows='3', placeholder='Write a bit about yourself...  ')
       button.btn.btn-default(type='submit') Submit
+    script(src='/assets/js/register-form.js')

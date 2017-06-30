@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  article.main-content
+    h1 #{viewedUser.username}
+    - var avatarURL = '\'/users/' + viewedUser.username + '/avatar' + '\'';
+    i.avatar(style='background-image:url('+ avatarURL +')')
+    p.lead #{new Date().getFullYear() - viewedUser.birthdate.getFullYear()} years old, #{viewedUser.gender}, #{viewedUser.sexuality}
+    p.bio #{viewedUser.bio}
+    br(style="clear:both;")
+    if user && user.username == viewedUser.username
+      hr
+      a(href="/update") Edit your profile

@@ -1,0 +1,43 @@
+extends layout
+
+mixin rangeselect(name, start, end, selected)
+  select(name=name, id=name, value=selected)
+    - for (;start <= end; start++) {
+      option(value=start, selected=(selected==start)) #{start}
+    - }
+
+mixin listselect(name, values, selected, useIndices)
+  select(name=name, id=name, value=selected)
+    each val, index in values
+      - var value = useIndices ? index : val
+      if(value == selected)
+        option(value=value, selected) #{val}
+      else
+        option(value=value) #{val}
+
+block content
+  article.main-content
+    form.signup-form(method='post', action='/update', enctype='multipart/form-data')
+      h1 #{user.username}
+      p
+        label(for='avatar') Profile Photo:
+        input(type='file', name='avatar', id='avatar', accept='image/*')
+        br
+        - var avatarURL = '\'/users/' + user.username + '/avatar' + '\'';
+        i.avatar(id='avatar-preview', style='background-image:url('+ avatarURL +')')
+      p
+        label Gender:
+        +listselect('gender', ['Male', 'Female', 'Queer', 'Fluid', 'Agender', 'Other'], user.gender)
+      p
+        label I am:
+        +listselect('sexuality', ['Straight', 'Gay', 'Bisexual', 'Open', 'Up for whatever'], user.sexuality)
+      p
+        label Birth Date:
+        +rangeselect('birthdate_day', 1, 31, user.birthdate.getDate())
+        +listselect('birthdate_month', ['January', 'Febuary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], user.birthdate.getMonth(), true)
+        +rangeselect('birthdate_year', 1950, 2006, user.birthdate.getFullYear())
+      p
+        label(for='bio') Bio:
+        textarea(name='bio', id='bio', cols='50', rows='3', placeholder='Write a bit about yourself...  ') #{user.bio}
+      button.btn.btn-default(type='submit') Submit
+    script(src='/assets/js/register-form.js')

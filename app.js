@@ -1,6 +1,7 @@
 // dependencies
 var http = require('http');
 var express = require('express');
+var session = require('express-session');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -9,6 +10,8 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+const MongoDBStore = require('connect-mongodb-session')(session);
+var config = require('./config');
 
 var routes = require('./routes/index');
 
@@ -28,8 +31,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(require('express-session')({
-    secret: 'keyboard cat',
+var sessionStore = new MongoDBStore({
+   uri: config.uri_session_db,
+   collection: 'user-sessions'
+ });
+app.use(session({
+    store: sessionStore,
+    key: 'app.sid',
+    secret: 'maurice ate it',
     resave: false,
     saveUninitialized: false
 }));
@@ -41,13 +50,29 @@ app.use(express.static(path.join(__dirname, 'static')));
 app.use('/', routes);
 
 // passport config
-var Account = require('./models/account');
-passport.use(new LocalStrategy(Account.authenticate()));
-passport.serializeUser(Account.serializeUser());
-passport.deserializeUser(Account.deserializeUser());
+var User = require('./models/user');
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // mongoose
-mongoose.connect('mongodb://admin:missundaztood@ds027328.mlab.com:27328/gaysaroundusers');
+mongoose.connect(config.uri_users_db);
+
+
+var httpserver = http.createServer(app);
+var chatserver = require('./chatserver')(httpserver, sessionStore);
+
+app.get('/api/chat/users', function (req, res) {
+  var users = [], clients = chatserver.getClients(), count = 0, max = 10;
+  for(var clientId in clients){
+    count++;
+    users.push(clients[clientId].name);
+    if(count > max)
+      break;
+  }
+  res.send(users);
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -66,7 +91,8 @@ if (app.get('env') === 'development') {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
-            error: err
+            error: err,
+            user: req.user
         });
     });
 }
@@ -81,10 +107,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
-
-var httpserver = http.createServer(app);
-var chatserver = require('./chatserver')(httpserver);
-
 httpserver.listen( (process.env.PORT || 3000) );
+
+console.log('Started');
 
 module.exports = app;

@@ -1,8 +1,13 @@
 var Vent = require('../lib/eventdispatcher');
 
-function Client(socket){
+function Client(socket, user){
 	this.socket = socket;
-  this.name = 'Guest' + Math.floor(Math.random() * 100);
+	if(user && user.username){
+		this.name = user.username;
+	}
+	else{
+  	this.name = 'Guest' + Math.floor(Math.random() * 100);
+	}
   this.attributes = {age: 18, country:'Israel'};
   this.preferences = {minAge: 10, maxAge:20}
   this.cooldownlist = {};
@@ -18,7 +23,7 @@ function Client(socket){
   socket.on('next', function(){
     if(self.partner){
       self.cooldownlist[self.partner.id] = Math.floor(Math.random() * 20) + 10;
-      console.log('cooldown ' + 
+      console.log('cooldown ' +
       self.cooldownlist[self.partner.id] )
       self.partner.endChat();
     }
